@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Life Assistant - Login</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f8;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 420px;
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #4f46e5;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #4f46e5;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #3730a3;
+        }
+
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .register-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .register-link button {
+            background: transparent;
+            color: #4f46e5;
+            padding: 5px;
+        }
+
+        .register-link button:hover {
+            background: transparent;
+            color: #3730a3;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+
+            <h1>🤖 AI Life Assistant</h1>
+
+            <p>Login to continue</p>
+
+        </div>
+
+
+        <!-- Login Form -->
+
+        <form id="loginForm">
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                id="loginButton"
+            >
+                Login
+            </button>
+
+        </form>
+
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+
+        <div class="register-link">
+
+            <p>Don't have an account?</p>
+
+            <button
+                onclick="goToRegister()"
+            >
+                Create Account
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const API_URL = "http://127.0.0.1:8000";
+
+
+        // Login
+        document
+            .getElementById("loginForm")
+            .addEventListener("submit", async function(event) {
+
+                event.preventDefault();
+
+
+                const email =
+                    document.getElementById("email").value.trim();
+
+                const password =
+                    document.getElementById("password").value;
+
+
+                const button =
+                    document.getElementById("loginButton");
+
+                const message =
+                    document.getElementById("message");
+
+
+                button.disabled = true;
+
+                button.textContent = "Logging in...";
+
+                message.textContent = "";
+
+
+                try {
+
+                    const response = await fetch(
+                        `${API_URL}/auth/login`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                email: email,
+                                password: password
+                            })
+                        }
+                    );
+
+
+                    const data = await response.json();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.detail ||
+                            "Login failed."
+                        );
+
+                    }
+
+
+                    // Save logged-in user information
+
+                    localStorage.setItem(
+                        "user_id",
+                        data.user_id
+                    );
+
+                    localStorage.setItem(
+                        "username",
+                        data.username
+                    );
+
+                    localStorage.setItem(
+                        "email",
+                        data.email
+                    );
+
+                    localStorage.setItem(
+                        "access_token",
+                        data.access_token
+              );
+
+
+                    message.textContent =
+                        "Login successful! Redirecting...";
+
+                    message.className =
+                        "message success";
+
+
+                    // Open AI Life Assistant
+
+                    setTimeout(function() {
+
+                        window.location.href =
+                            "index.html";
+
+                    }, 800);
+
+
+                } catch (error) {
+
+                    message.textContent =
+                        "❌ " + error.message;
+
+                    message.className =
+                        "message error";
+
+                }
+
+
+                button.disabled = false;
+
+                button.textContent = "Login";
+
+            });
+
+
+        // Go to Register page
+
+        function goToRegister() {
+
+            window.location.href =
+                "register.html";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

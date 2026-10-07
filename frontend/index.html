@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Life Assistant</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f8;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            height: 92vh;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #4f46e5;
+            color: white;
+            padding: 18px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 25px;
+        }
+
+        .header p {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        #profileButton {
+            position: absolute;
+            left: 15px;
+            top: 18px;
+            padding: 8px 12px;
+            background: white;
+            color: #4f46e5;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+       }
+
+        #dashboardButton {
+            position: absolute;
+            left: 110px;
+            top: 18px;
+            padding: 8px 12px;
+            background: white;
+            color: #4f46e5;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #logoutButton {
+            position: absolute;
+            right: 15px;
+            top: 18px;
+            padding: 8px 12px;
+            background: white;
+            color: #4f46e5;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* =========================================
+           MAIN AREA
+        ========================================= */
+
+        .main-area {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+        }
+
+        /* =========================================
+           CHAT AREA
+        ========================================= */
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        #chatBox {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 75%;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .user {
+            background: #4f46e5;
+            color: white;
+            margin-left: auto;
+        }
+
+        .ai {
+            background: #e5e7eb;
+            color: #111827;
+            margin-right: auto;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            background: white;
+            gap: 10px;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        #messageInput:focus {
+            border-color: #4f46e5;
+        }
+
+        #sendButton {
+            padding: 12px 20px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #sendButton:hover {
+            background: #3730a3;
+        }
+
+        #sendButton:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        /* =========================================
+           MEMORY SIDEBAR
+        ========================================= */
+
+        .memory-panel {
+            width: 280px;
+            border-left: 1px solid #ddd;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-header {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            background: #f8fafc;
+        }
+
+        .memory-header h2 {
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .memory-header p {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        .memory-search {
+            padding: 0 12px 10px 12px;
+        }
+
+        #memorySearchInput {
+            width: 100%;
+            padding: 9px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        #memorySearchInput:focus {
+            border-color: #4f46e5;
+        }
+
+        .memory-actions {
+            padding: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        #addMemoryButton,
+        #refreshMemoryButton {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #addMemoryButton {
+            background: #4f46e5;
+            color: white;
+        }
+
+        #refreshMemoryButton {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        #memoriesList {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .memory-card {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .memory-text {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.4;
+        }
+
+        .memory-edit {
+            margin-top: 8px;
+            margin-right: 5px;
+            padding: 5px 8px;
+            border: none;
+            border-radius: 5px;
+            background: #e0e7ff;
+            color: #3730a3;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .memory-delete {
+            margin-top: 8px;
+            padding: 5px 8px;
+            border: none;
+            border-radius: 5px;
+            background: #fee2e2;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .no-memory {
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+            padding: 20px 10px;
+        }
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
+        @media (max-width: 700px) {
+
+            .container {
+                width: 96%;
+                height: 95vh;
+            }
+
+            .main-area {
+                flex-direction: column;
+            }
+
+            .memory-panel {
+                width: 100%;
+                height: 220px;
+                border-left: none;
+                border-top: 1px solid #ddd;
+            }
+
+            .message {
+                max-width: 85%;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- =========================================
+             HEADER
+        ========================================= -->
+
+        <div class="header">
+            
+            <button id="profileButton" onclick="showProfile()">
+            👤 Profile
+           </button>
+
+           <button id="dashboardButton" onclick="showDashboard()">
+            📊 Dashboard
+           </button>
+
+            <button id="logoutButton" onclick="logout()">
+                Logout
+            </button>
+
+            <h1>🤖 AI Life Assistant</h1>
+
+            <p id="welcome">
+                Welcome 👋
+            </p>
+
+        </div>
+
+        <!-- =========================================
+             MAIN AREA
+        ========================================= -->
+
+        <div class="main-area">
+
+            <!-- =====================================
+                 CHAT AREA
+            ===================================== -->
+
+            <div class="chat-area">
+
+                <div id="chatBox"></div>
+
+                <div class="input-area">
+
+                    <input
+                        type="text"
+                        id="messageInput"
+                        placeholder="Type your message..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        id="sendButton"
+                        onclick="sendMessage()"
+                    >
+                        Send
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- =====================================
+                 MEMORY PANEL
+            ===================================== -->
+
+            <div class="memory-panel">
+
+                <div class="memory-header">
+
+                    <h2>🧠 My Memories</h2>
+
+                    <p>
+                        Your saved personal information
+                    </p>
+
+                </div>
+
+                <!-- MEMORY SEARCH -->
+
+                <div class="memory-search">
+
+                    <input
+                        type="text"
+                        id="memorySearchInput"
+                        placeholder="🔍 Search memories..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+                <div class="memory-actions">
+
+                    <button
+                        type="button"
+                        id="addMemoryButton"
+                    >
+                        + Add
+                    </button>
+
+                    <button
+                        id="refreshMemoryButton"
+                        onclick="loadMemories()"
+                    >
+                        🔄 Refresh
+                    </button>
+
+                </div>
+
+                <div id="memoriesList">
+
+                    <div class="no-memory">
+                        Loading memories...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // =========================================
+        // API URL
+        // =========================================
+
+        const API_URL = "http://127.0.0.1:8000";
+
+
+        // =========================================
+        // Get Logged-in User
+        // =========================================
+
+        const userId = localStorage.getItem("user_id");
+
+        const username = localStorage.getItem("username");
+
+        const email = localStorage.getItem("email");
+
+        const accessToken = localStorage.getItem("access_token");
+
+
+        // =========================================
+        // Check Login
+        // =========================================
+
+        if (!userId) {
+
+            alert("Please login first.");
+
+            window.location.href = "login.html";
+
+        }
+
+
+        // =========================================
+        // Welcome Message
+        // =========================================
+
+        document.getElementById("welcome").textContent =
+            `Welcome ${username || "User"} 👋`;
+
+
+        // =========================================
+        // Add Message to Screen
+        // =========================================
+
+        function addMessage(role, message) {
+
+            const chatBox =
+                document.getElementById("chatBox");
+
+            const div =
+                document.createElement("div");
+
+            div.classList.add("message");
+
+            if (role === "User") {
+
+                div.classList.add("user");
+
+            } else {
+
+                div.classList.add("ai");
+
+            }
+
+            div.textContent = message;
+
+            chatBox.appendChild(div);
+
+            chatBox.scrollTop =
+                chatBox.scrollHeight;
+
+        }
+
+
+        // =========================================
+        // Send Message to AI
+        // =========================================
+
+        async function sendMessage() {
+
+            const input =
+                document.getElementById("messageInput");
+
+            const message =
+                input.value.trim();
+
+            if (message === "") {
+
+                return;
+
+            }
+
+
+            // Show user message
+
+            addMessage(
+                "User",
+                message
+            );
+
+
+            // Clear input
+
+            input.value = "";
+
+
+            const button =
+                document.getElementById("sendButton");
+
+            button.disabled = true;
+
+
+            // =====================================
+            // Loading Message
+            // =====================================
+
+            const loading =
+                document.createElement("div");
+
+            loading.classList.add(
+                "message",
+                "ai",
+                "loading"
+            );
+
+            loading.textContent =
+                "AI is thinking...";
+
+
+            document
+                .getElementById("chatBox")
+                .appendChild(loading);
+
+
+            try {
+
+                // =================================
+                // Send request to backend
+                // =================================
+
+                const response =
+                    await fetch(
+                        `${API_URL}/chat`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                               "Content-Type": "application/json",
+                               "Authorization": `Bearer ${accessToken}`
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    user_id: userId,
+
+                                    message: message
+
+                                })
+
+                        }
+                    );
+
+
+                // =================================
+                // Check Server Error
+                // =================================
+
+                if (!response.ok) {
+
+                    const errorData =
+                        await response.json();
+
+                    throw new Error(
+                        errorData.detail ||
+                        `Server error: ${response.status}`
+                    );
+
+                }
+
+
+                // =================================
+                // Get AI Response
+                // =================================
+
+                const data =
+                    await response.json();
+
+
+                // Remove loading
+
+                loading.remove();
+
+
+                // Show AI response
+
+                addMessage(
+                    "AI",
+                    data.reply
+                );
+
+
+                // Refresh memories after chat
+
+                loadMemories();
+
+
+            } catch (error) {
+
+                loading.remove();
+
+                addMessage(
+                    "AI",
+                    "❌ Something went wrong. Please check the backend server."
+                );
+
+                console.error(
+                    "Chat Error:",
+                    error
+                );
+
+            }
+
+
+            // Enable button
+
+            button.disabled = false;
+
+            input.focus();
+
+        }
+
+
+        // =========================================
+        // Load User Chat History
+        // =========================================
+
+        async function loadHistory() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_URL}/chat/history?user_id=${userId}`
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Could not load chat history."
+                    );
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                const chatBox =
+                    document.getElementById("chatBox");
+
+                chatBox.innerHTML = "";
+
+
+                // =================================
+                // Show Previous Messages
+                // =================================
+
+                if (
+                    data.history &&
+                    data.history.length > 0
+                ) {
+
+                    data.history.forEach(
+                        function(item) {
+
+                            addMessage(
+                                item.role,
+                                item.message
+                            );
+
+                        }
+                    );
+
+                } else {
+
+                    addMessage(
+                        "AI",
+                        `Hello ${username || "there"}! 👋 How can I help you today?`
+                    );
+
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "History Error:",
+                    error
+                );
+
+
+                addMessage(
+                    "AI",
+                    `Hello ${username || "there"}! 👋 How can I help you today?`
+                );
+
+            }
+
+        }
+
+
+        // =========================================
+        // LOAD MEMORIES
+        // =========================================
+
+        async function loadMemories() {
+
+            const memoriesList =
+                document.getElementById("memoriesList");
+
+
+            memoriesList.innerHTML =
+                `<div class="no-memory">
+                    Loading memories...
+                </div>`;
+
+
+            try {
+
+                const response =
+    await fetch(
+        `${API_URL}/memory/list`,
+        {
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            }
+        }
+    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Could not load memories."
+                    );
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                memoriesList.innerHTML = "";
+
+
+                // =================================
+                // No Memories
+                // =================================
+
+                if (
+                    !data.memories ||
+                    data.memories.length === 0
+                ) {
+
+                    memoriesList.innerHTML =
+                        `<div class="no-memory">
+                            🧠 No memories saved yet.
+                        </div>`;
+
+                    return;
+
+                }
+
+
+                // =================================
+                // Display Memories
+                // =================================
+
+                data.memories.forEach(
+                    function(item) {
+
+                        const card =
+                            document.createElement("div");
+
+                        card.classList.add(
+                            "memory-card"
+                        );
+
+
+                        // =============================
+                        // Memory Text
+                        // =============================
+
+                        const text =
+                            document.createElement("div");
+
+                        text.classList.add(
+                            "memory-text"
+                        );
+
+                        text.textContent =
+                            "🧠 " + item.memory;
+
+
+                        // =============================
+                        // Edit Button
+                        // =============================
+
+                        const editButton =
+                            document.createElement("button");
+
+                        editButton.classList.add(
+                            "memory-edit"
+                        );
+
+                        editButton.textContent =
+                            "✏️ Edit";
+
+
+                        editButton.onclick =
+                            function() {
+
+                                editMemory(
+                                    item.id,
+                                    item.memory
+                                );
+
+                            };
+
+
+                        // =============================
+                        // Delete Button
+                        // =============================
+
+                        const deleteButton =
+                            document.createElement("button");
+
+                        deleteButton.classList.add(
+                            "memory-delete"
+                        );
+
+                        deleteButton.textContent =
+                            "🗑️ Delete";
+
+
+                        deleteButton.onclick =
+                            function() {
+
+                                deleteMemory(
+                                    item.id
+                                );
+
+                            };
+
+
+                        // =============================
+                        // Add to Card
+                        // =============================
+
+                        card.appendChild(text);
+
+                        card.appendChild(editButton);
+
+                        card.appendChild(deleteButton);
+
+                        memoriesList.appendChild(card);
+
+                    }
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Memory Error:",
+                    error
+                );
+
+
+                memoriesList.innerHTML =
+                    `<div class="no-memory">
+                        ❌ Could not load memories.
+                    </div>`;
+
+            }
+
+        }
+
+
+        // =========================================
+        // SEARCH MEMORY
+        // =========================================
+
+        async function searchMemories() {
+
+            const keyword =
+                document
+                    .getElementById("memorySearchInput")
+                    .value
+                    .trim();
+
+
+            // If search box is empty
+
+            if (keyword === "") {
+
+                loadMemories();
+
+                return;
+
+            }
+
+
+            const memoriesList =
+                document.getElementById("memoriesList");
+
+
+            memoriesList.innerHTML =
+                `<div class="no-memory">
+                    🔍 Searching...
+                </div>`;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                    `${API_URL}/memory/search?user_id=${userId}&keyword=${encodeURIComponent(keyword)}`,
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${accessToken}`
+                        }
+                   }
+         );
+
+
+                if (!response.ok) {
+
+                    const errorData =
+                        await response.json();
+
+                    throw new Error(
+                        errorData.detail ||
+                        "Could not search memories."
+                    );
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                memoriesList.innerHTML = "";
+
+
+                // =================================
+                // No Search Results
+                // =================================
+
+                if (
+                    !data.memories ||
+                    data.memories.length === 0
+                ) {
+
+                    memoriesList.innerHTML =
+                        `<div class="no-memory">
+                            🔍 No memories found.
+                        </div>`;
+
+                    return;
+
+                }
+
+
+                // =================================
+                // Display Search Results
+                // =================================
+
+                data.memories.forEach(
+                    function(item) {
+
+                        const card =
+                            document.createElement("div");
+
+                        card.classList.add(
+                            "memory-card"
+                        );
+
+
+                        // Memory Text
+
+                        const text =
+                            document.createElement("div");
+
+                        text.classList.add(
+                            "memory-text"
+                        );
+
+                        text.textContent =
+                            "🧠 " + item.memory;
+
+
+                        // Edit Button
+
+                        const editButton =
+                            document.createElement("button");
+
+                        editButton.classList.add(
+                            "memory-edit"
+                        );
+
+                        editButton.textContent =
+                            "✏️ Edit";
+
+
+                        editButton.onclick =
+                            function() {
+
+                                editMemory(
+                                    item.id,
+                                    item.memory
+                                );
+
+                            };
+
+
+                        // Delete Button
+
+                        const deleteButton =
+                            document.createElement("button");
+
+                        deleteButton.classList.add(
+                            "memory-delete"
+                        );
+
+                        deleteButton.textContent =
+                            "🗑️ Delete";
+
+
+                        deleteButton.onclick =
+                            function() {
+
+                                deleteMemory(
+                                    item.id
+                                );
+
+                            };
+
+
+                        card.appendChild(text);
+
+                        card.appendChild(editButton);
+
+                        card.appendChild(deleteButton);
+
+                        memoriesList.appendChild(card);
+
+                    }
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Search Memory Error:",
+                    error
+                );
+
+
+                memoriesList.innerHTML =
+                    `<div class="no-memory">
+                        ❌ Could not search memories.
+                    </div>`;
+
+            }
+
+        }
+
+
+        // =========================================
+        // ADD MEMORY
+        // =========================================
+
+        async function addMemory() {
+
+            // Create memory input box
+
+            const overlay = document.createElement("div");
+
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100%";
+            overlay.style.height = "100%";
+            overlay.style.background = "rgba(0,0,0,0.5)";
+            overlay.style.display = "flex";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.zIndex = "9999";
+
+
+            const box = document.createElement("div");
+
+            box.style.background = "white";
+            box.style.padding = "25px";
+            box.style.borderRadius = "12px";
+            box.style.width = "90%";
+            box.style.maxWidth = "400px";
+            box.style.boxShadow =
+                "0 5px 25px rgba(0,0,0,0.3)";
+
+
+            box.innerHTML = `
+                <h3 style="margin-bottom:15px;">
+                    🧠 Add Memory
+                </h3>
+
+                <input
+                    id="memoryInputBox"
+                    type="text"
+                    placeholder="Enter something to remember..."
+                    style="
+                        width:100%;
+                        padding:12px;
+                        border:1px solid #ccc;
+                        border-radius:8px;
+                        font-size:15px;
+                        margin-bottom:15px;
+                    "
+                >
+
+                <div style="
+                    display:flex;
+                    gap:10px;
+                    justify-content:flex-end;
+                ">
+
+                    <button
+                        id="cancelMemoryButton"
+                        style="
+                            padding:10px 15px;
+                            border:none;
+                            border-radius:7px;
+                            cursor:pointer;
+                            background:#ddd;
+                        "
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        id="saveMemoryButton"
+                        style="
+                            padding:10px 15px;
+                            border:none;
+                            border-radius:7px;
+                            cursor:pointer;
+                            background:#4f46e5;
+                            color:white;
+                        "
+                    >
+                        Save
+                    </button>
+
+                </div>
+            `;
+
+
+            overlay.appendChild(box);
+
+            document.body.appendChild(overlay);
+
+
+            // Focus input
+
+            document
+                .getElementById("memoryInputBox")
+                .focus();
+
+
+            // =========================================
+            // Cancel
+            // =========================================
+
+            document
+                .getElementById("cancelMemoryButton")
+                .addEventListener(
+                    "click",
+                    function() {
+
+                        overlay.remove();
+
+                    }
+                );
+
+
+            // =========================================
+            // Save Memory
+            // =========================================
+
+            document
+                .getElementById("saveMemoryButton")
+                .addEventListener(
+                    "click",
+                    async function() {
+
+                        const input =
+                            document.getElementById(
+                                "memoryInputBox"
+                            );
+
+                        const memory =
+                            input.value.trim();
+
+
+                        if (memory === "") {
+
+                            alert(
+                                "Please enter something to remember."
+                            );
+
+                            input.focus();
+
+                            return;
+
+                        }
+
+
+                        try {
+
+                            const response =
+                                await fetch(
+                                    `${API_URL}/memory/save`,
+                                    {
+
+                                        method: "POST",
+
+                                        headers: {
+                                          "Content-Type": "application/json",
+                                          "Authorization": `Bearer ${accessToken}`
+                                        },
+
+                                        body:
+                                            JSON.stringify({
+
+                                                user_id: userId,
+
+                                                memory: memory
+
+                                            })
+
+                                    }
+                                );
+
+
+                            if (!response.ok) {
+
+                                const errorData =
+                                    await response.json();
+
+                                throw new Error(
+                                    errorData.detail ||
+                                    "Could not save memory."
+                                );
+
+                            }
+
+
+                            const data =
+                                await response.json();
+
+
+                            console.log(
+                                "MEMORY SAVED:",
+                                data
+                            );
+
+
+                            // Close input box
+
+                            overlay.remove();
+
+
+                            // Success message
+
+                            alert(
+                                "✅ Memory saved successfully!"
+                            );
+
+
+                            // Refresh memory list
+
+                            loadMemories();
+
+
+                        } catch (error) {
+
+                            console.error(
+                                "Save Memory Error:",
+                                error
+                            );
+
+
+                            alert(
+                                "❌ Could not save memory. Please check the backend."
+                            );
+
+                        }
+
+                    }
+                );
+
+        }
+
+
+        // =========================================
+        // EDIT MEMORY
+        // =========================================
+
+        async function editMemory(memoryId, oldMemory) {
+
+            // Create overlay
+
+            const overlay = document.createElement("div");
+
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100%";
+            overlay.style.height = "100%";
+            overlay.style.background = "rgba(0,0,0,0.5)";
+            overlay.style.display = "flex";
+            overlay.style.alignItems = "center";
+            overlay.style.justifyContent = "center";
+            overlay.style.zIndex = "9999";
+
+
+            // Create box
+
+            const box = document.createElement("div");
+
+            box.style.background = "white";
+            box.style.padding = "20px";
+            box.style.borderRadius = "12px";
+            box.style.width = "90%";
+            box.style.maxWidth = "450px";
+
+
+            // Title
+
+            const title = document.createElement("h3");
+
+            title.innerText = "✏️ Edit Memory";
+
+            box.appendChild(title);
+
+
+            // Input
+
+            const input = document.createElement("textarea");
+
+            input.value = oldMemory;
+
+            input.style.width = "100%";
+            input.style.minHeight = "100px";
+            input.style.padding = "10px";
+            input.style.marginTop = "10px";
+            input.style.boxSizing = "border-box";
+
+            box.appendChild(input);
+
+
+            // Save button
+
+            const saveButton =
+                document.createElement("button");
+
+            saveButton.innerText = "💾 Save";
+
+            saveButton.style.marginTop = "10px";
+            saveButton.style.padding = "10px 20px";
+            saveButton.style.cursor = "pointer";
+
+            box.appendChild(saveButton);
+
+
+            // Cancel button
+
+            const cancelButton =
+                document.createElement("button");
+
+            cancelButton.innerText = "Cancel";
+
+            cancelButton.style.marginTop = "10px";
+            cancelButton.style.marginLeft = "10px";
+            cancelButton.style.padding = "10px 20px";
+            cancelButton.style.cursor = "pointer";
+
+            box.appendChild(cancelButton);
+
+
+            overlay.appendChild(box);
+
+            document.body.appendChild(overlay);
+
+
+            // Cancel
+
+            cancelButton.addEventListener(
+                "click",
+                function() {
+
+                    overlay.remove();
+
+                }
+            );
+
+
+            // Save
+
+            saveButton.addEventListener(
+                "click",
+                async function() {
+
+                    const newMemory =
+                        input.value.trim();
+
+
+                    if (!newMemory) {
+
+                        alert("Please enter a memory.");
+
+                        return;
+
+                    }
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                `${API_URL}/memory/edit/${memoryId}?memory=${encodeURIComponent(newMemory)}`,
+                                {
+                                   method: "PUT",
+                                   headers: {
+                                  "Authorization": `Bearer ${accessToken}`
+                                    }
+                               }
+                       );
+
+
+                        const data =
+                            await response.json();
+
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                data.detail ||
+                                "Could not edit memory."
+                            );
+
+                        }
+
+
+                        alert(
+                            "✏️ Memory updated successfully!"
+                        );
+
+
+                        overlay.remove();
+
+                        loadMemories();
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "Edit Memory Error:",
+                            error
+                        );
+
+
+                        alert(
+                            "❌ Could not edit memory."
+                        );
+
+                    }
+
+                }
+            );
+
+
+            input.focus();
+
+        }
+
+
+        // =========================================
+        // DELETE MEMORY
+        // =========================================
+
+        async function deleteMemory(memoryId) {
+
+            const confirmDelete =
+                confirm(
+                    "Are you sure you want to delete this memory?"
+                );
+
+
+            if (!confirmDelete) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const response = await fetch(
+                `${API_URL}/memory/delete/${memoryId}`,
+                {
+                   method: "DELETE",
+                   headers: {
+                     "Authorization": `Bearer ${accessToken}`
+                    }
+                }
+           );
+
+
+                if (!response.ok) {
+
+                    const errorData =
+                        await response.json();
+
+                    throw new Error(
+                        errorData.detail ||
+                        "Could not delete memory."
+                    );
+
+                }
+
+
+                alert(
+                    "🗑️ Memory deleted successfully!"
+                );
+
+
+                loadMemories();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Delete Memory Error:",
+                    error
+                );
+
+
+                alert(
+                    "❌ Could not delete memory."
+                );
+
+            }
+
+        }
+
+
+        // =========================================
+        // Enter Key
+        // =========================================
+
+        document
+            .getElementById("messageInput")
+            .addEventListener(
+                "keypress",
+                function(event) {
+
+                    if (event.key === "Enter") {
+
+                        sendMessage();
+
+                    }
+
+                }
+            );
+
+        // =========================================
+// SHOW USER PROFILE
+// =========================================
+
+function showProfile() {
+
+    const profileOverlay =
+        document.createElement("div");
+
+    profileOverlay.style.position = "fixed";
+    profileOverlay.style.top = "0";
+    profileOverlay.style.left = "0";
+    profileOverlay.style.width = "100%";
+    profileOverlay.style.height = "100%";
+    profileOverlay.style.background =
+        "rgba(0,0,0,0.5)";
+    profileOverlay.style.display = "flex";
+    profileOverlay.style.justifyContent = "center";
+    profileOverlay.style.alignItems = "center";
+    profileOverlay.style.zIndex = "9999";
+
+    const profileBox =
+        document.createElement("div");
+
+    profileBox.style.background = "white";
+    profileBox.style.padding = "25px";
+    profileBox.style.borderRadius = "12px";
+    profileBox.style.width = "90%";
+    profileBox.style.maxWidth = "400px";
+    profileBox.style.boxShadow =
+        "0 5px 25px rgba(0,0,0,0.3)";
+
+    profileBox.innerHTML = `
+        <h2 style="margin-bottom:20px;">
+            👤 My Profile
+        </h2>
+
+        <p style="margin-bottom:12px;">
+            <strong>Username:</strong>
+            ${username || "User"}
+        </p>
+
+        <p style="margin-bottom:20px;">
+            <strong>User ID:</strong>
+            ${userId}
+        </p>
+        
+        <p style="margin-bottom:12px;">
+            <strong>Email:</strong>
+            ${email || "Not available"}
+        </p>
+
+        <p style="
+            margin-bottom:20px;
+            color:#6b7280;
+            font-size:13px;
+        ">
+            Your AI Life Assistant profile
+        </p>
+
+        <button
+            id="closeProfileButton"
+            style="
+                padding:10px 18px;
+                border:none;
+                border-radius:7px;
+                background:#4f46e5;
+                color:white;
+                cursor:pointer;
+            "
+        >
+            Close
+        </button>
+    `;
+
+    profileOverlay.appendChild(profileBox);
+
+    document.body.appendChild(profileOverlay);
+
+    document
+        .getElementById("closeProfileButton")
+        .addEventListener(
+            "click",
+            function() {
+
+                profileOverlay.remove();
+
+            }
+        );
+}      
+    // =========================================
+// SHOW DASHBOARD
+// =========================================
+
+async function showDashboard() {
+
+    const dashboardOverlay =
+        document.createElement("div");
+
+    dashboardOverlay.style.position = "fixed";
+    dashboardOverlay.style.top = "0";
+    dashboardOverlay.style.left = "0";
+    dashboardOverlay.style.width = "100%";
+    dashboardOverlay.style.height = "100%";
+    dashboardOverlay.style.background =
+        "rgba(0,0,0,0.5)";
+    dashboardOverlay.style.display = "flex";
+    dashboardOverlay.style.justifyContent = "center";
+    dashboardOverlay.style.alignItems = "center";
+    dashboardOverlay.style.zIndex = "9999";
+
+    const dashboardBox =
+        document.createElement("div");
+
+    dashboardBox.style.background = "white";
+    dashboardBox.style.padding = "25px";
+    dashboardBox.style.borderRadius = "12px";
+    dashboardBox.style.width = "90%";
+    dashboardBox.style.maxWidth = "500px";
+    dashboardBox.style.boxShadow =
+        "0 5px 25px rgba(0,0,0,0.3)";
+
+    dashboardBox.innerHTML = `
+        <h2 style="margin-bottom:20px;">
+            📊 My Dashboard
+        </h2>
+
+        <div id="dashboardContent">
+            <p style="text-align:center;">
+                Loading dashboard...
+            </p>
+        </div>
+
+        <button
+            id="closeDashboardButton"
+            style="
+                margin-top:20px;
+                padding:10px 18px;
+                border:none;
+                border-radius:7px;
+                background:#4f46e5;
+                color:white;
+                cursor:pointer;
+            "
+        >
+            Close
+        </button>
+    `;
+
+    dashboardOverlay.appendChild(dashboardBox);
+
+    document.body.appendChild(dashboardOverlay);
+
+    document
+        .getElementById("closeDashboardButton")
+        .addEventListener(
+            "click",
+            function() {
+
+                dashboardOverlay.remove();
+
+            }
+        );
+
+    try {
+
+        // =====================================
+        // Get Chat History
+        // =====================================
+
+        const historyResponse =
+            await fetch(
+                `${API_URL}/chat/history?user_id=${userId}`
+            );
+
+        if (!historyResponse.ok) {
+
+            throw new Error(
+                "Could not load chat history."
+            );
+
+        }
+
+        const historyData =
+            await historyResponse.json();
+
+        const totalMessages =
+            historyData.history
+                ? historyData.history.length
+                : 0;
+
+
+        // =====================================
+        // Get Memories
+        // =====================================
+
+        const memoryResponse =
+    await fetch(
+        `${API_URL}/memory/list`,
+        {
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            }
+        }
+    );
+
+        if (!memoryResponse.ok) {
+
+            throw new Error(
+                "Could not load memories."
+            );
+
+        }
+
+        const memoryData =
+            await memoryResponse.json();
+
+        const totalMemories =
+            memoryData.memories
+                ? memoryData.memories.length
+                : 0;
+
+
+        // =====================================
+        // Display Dashboard
+        // =====================================
+
+        document
+            .getElementById("dashboardContent")
+            .innerHTML = `
+
+                <div style="
+                    background:#f8fafc;
+                    padding:15px;
+                    border-radius:10px;
+                    margin-bottom:12px;
+                ">
+                    <strong>👤 Username</strong>
+                    <p style="
+                        margin-top:5px;
+                        color:#4f46e5;
+                    ">
+                        ${username || "User"}
+                    </p>
+                </div>
+
+                <div style="
+                    background:#f8fafc;
+                    padding:15px;
+                    border-radius:10px;
+                    margin-bottom:12px;
+                ">
+                    <strong>🧠 Total Memories</strong>
+                    <p style="
+                        margin-top:5px;
+                        font-size:22px;
+                        font-weight:bold;
+                        color:#4f46e5;
+                    ">
+                        ${totalMemories}
+                    </p>
+                </div>
+
+                <div style="
+                    background:#f8fafc;
+                    padding:15px;
+                    border-radius:10px;
+                    margin-bottom:12px;
+                ">
+                    <strong>💬 Total Chat Messages</strong>
+                    <p style="
+                        margin-top:5px;
+                        font-size:22px;
+                        font-weight:bold;
+                        color:#4f46e5;
+                    ">
+                        ${totalMessages}
+                    </p>
+                </div>
+
+                <div style="
+                    background:#f8fafc;
+                    padding:15px;
+                    border-radius:10px;
+                ">
+                    <strong>🤖 Assistant Status</strong>
+                    <p style="
+                        margin-top:5px;
+                        color:green;
+                    ">
+                        ● Active
+                    </p>
+                </div>
+            `;
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard Error:",
+            error
+        );
+
+        document
+            .getElementById("dashboardContent")
+            .innerHTML = `
+                <p style="color:#dc2626;">
+                    ❌ Could not load dashboard.
+                </p>
+            `;
+
+    }
+}
+        // =========================================
+        // Logout
+        // =========================================
+
+        function logout() {
+
+            localStorage.removeItem(
+                "user_id"
+            );
+
+            localStorage.removeItem(
+                "username"
+            );
+
+            localStorage.removeItem(
+                "email"
+            );
+
+
+            alert(
+                "Logged out successfully."
+            );
+
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        // =========================================
+        // Load Data on Page Open
+        // =========================================
+
+        loadHistory();
+
+        loadMemories();
+
+
+        // =========================================
+        // Memory Search Input
+        // =========================================
+
+        document
+            .getElementById("memorySearchInput")
+            .addEventListener(
+                "input",
+                searchMemories
+            );
+
+
+        // =========================================
+        // Add Memory Button
+        // =========================================
+
+        document
+            .getElementById("addMemoryButton")
+            .addEventListener(
+                "click",
+                addMemory
+            );
+
+    </script>
+
+</body>
+
+</html>
